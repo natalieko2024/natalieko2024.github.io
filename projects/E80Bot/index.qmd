@@ -11,7 +11,7 @@ categories:
   - "Embedded Systems & Firmware"
   - "Mechanical Design & FEA"
 skills: "P-Control, Circuit Design, Mechanical Design, C++, MATLAB, I2C Communication, Data Analysis, Troubleshooting, Technical Documentation"
-roles: "Circuit Design Lead, Controls and Programming Lead, Field Debugging Lead"
+roles: "Circuit Design Lead, Controls and Programming Lead, Field Debugging Lead (Team of 4)"
 ---
 
 <div class="project-metadata-bar">

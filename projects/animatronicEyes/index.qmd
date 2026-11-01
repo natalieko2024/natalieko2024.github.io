@@ -8,12 +8,14 @@ image: "eyes.jpg"
 categories:
   - "Embedded Systems & Firmware"
   - "Mechanical Design & FEA"
-skills: "SolidWorks, Mechanical Design, Prototyping,  C++, Arduino, Servo Control, 3D Printing"
+skills: "SolidWorks, Mechanical Design, Prototyping, C++, Arduino, Servo Control, 3D Printing"
+roles: "Mechanical Design Lead, Programming Lead (Team of 3)"
 ---
 
 <div class="project-metadata-bar">
   <div><strong>Timeline:</strong> {{< meta date-range >}}</div>
   <div><strong>Skills:</strong> {{< meta skills >}}</div>
+  <div><strong>Roles:</strong> {{< meta roles >}}</div>
 </div>
 
 :::{.columns}
@@ -44,7 +46,7 @@ Key outcomes:
 
 # Introduction and Background
 
-I've always been fascinated by animatronics and mechatronic design. I decided to get started on developing these skills on my own through designing some controllable animatronic eyes. These would later be integrated into my Halloween costume where I made a moving Glamrock Freddy head (from the Five Nights at Freddy franchise).
+I've always been fascinated by animatronics and mechatronic design. I decided to get started on developing these skills on my own through designing some controllable animatronic eyes with my two friends. These would later be integrated into my Halloween costume where I made a moving Glamrock Freddy head (from the Five Nights at Freddy franchise).
 
 # Mechanical Design
 
