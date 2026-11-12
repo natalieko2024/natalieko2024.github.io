@@ -8,7 +8,7 @@
 
 <meta name="description" content="Utilized MCU interrupts to accurately determine stepper motor speed and direction.">
 
-<title>Leverging MCU Interrupts to Read Stepper Motor Encoders – NK/MECH</title>
+<title>Leveraging MCU Interrupts to Read Stepper Motor Encoders – NK/MECH</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -313,7 +313,7 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#results-and-discussion" id="toc-results-and-discussion" class="nav-link" data-scroll-target="#results-and-discussion">Results and Discussion</a>
   <ul class="collapse">
-  <li><a href="#calculations" id="toc-calculations" class="nav-link" data-scroll-target="#calculations">Calculations</a></li>
+  <li><a href="#additional-calculations" id="toc-additional-calculations" class="nav-link" data-scroll-target="#additional-calculations">Additional Calculations</a></li>
   <li><a href="#hardware-deployment" id="toc-hardware-deployment" class="nav-link" data-scroll-target="#hardware-deployment">Hardware Deployment</a></li>
   </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
@@ -321,7 +321,7 @@ ul.task-list li input[type="checkbox"] {
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7">Leverging MCU Interrupts to Read Stepper Motor Encoders</h1></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7">Leveraging MCU Interrupts to Read Stepper Motor Encoders</h1></header>
 
 
 <header id="title-block-header">
@@ -351,13 +351,13 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Utilized MCU interrupts</strong> to determine speed and direction based on two quadrature encoders</li>
 <li><strong>Evaluated the tradeoffs of using MCU interrupts versus using manual polling</strong></li>
 <li><strong>Utilized a bench top power supply</strong> to test speed readings at all edge cases (maximum speed, 0 speed, rotating in the opposite direction)</li>
-<li><strong>Confirmed the motor revolutions per second using gear ratio calculations</strong></li>
+<li><strong>Confirmed the system resolution and update rate</strong> with manual calculations</li>
 </ul>
 </div>
 </div>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
-<p>In this lab, a design was implemented on the MCU to accurately determine the speed and direction of a stepper motor through encoder outputs.</p>
+<p>In this lab, I implemented a design on the MCU to accurately determine the speed and direction of a stepper motor through encoder outputs.</p>
 </section>
 <section id="design-and-testing-methodology" class="level1">
 <h1>Design and Testing Methodology</h1>
@@ -368,23 +368,23 @@ ul.task-list li input[type="checkbox"] {
 <figcaption><strong>Figure 1. Flow chart of the implementation</strong></figcaption>
 </figure>
 </div>
-<p>Using the collected pin readings, the direction of the motor spin was derived within each interrupt. This was done to maximize the accuracy of the direction at any point in time. The direction derivation logic is shown in Figure 2.</p>
+<p>Using the collected pin readings, I derived the direction of the motor spin within each interrupt. This was done to maximize the accuracy of the direction at any point in time. The direction derivation logic is shown in Figure 2.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/lab5directioncalc.jpeg" class="img-fluid figure-img"></p>
 <figcaption><strong>Figure 2. Motor direction logic</strong></figcaption>
 </figure>
 </div>
-<p>During each interrupt, a count was also incremented. Since the motor has 408 pulses per revolution, Our counter reaches 4*408 every time the motor completes one revolution. The speed (in revolutions per second) was calculated per Figure 3.</p>
+<p>During each interrupt, I also incremented a count. Since the motor has 408 pulses per revolution, our counter reaches 4*408 every time the motor completes one revolution. I calculated the speed (in revolutions per second) as shown in Figure 3.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/lab5speedcalc.jpeg" class="img-fluid figure-img"></p>
 <figcaption><strong>Figure 3. Motor speed calculation</strong></figcaption>
 </figure>
 </div>
-<p>The implementation also utilizes a timer to print out the speed and direction at 1Hz. The timer internal clock was configured to run at 10kHz, and when the timer count reached 10000, the speed and direction would print, and then the speed count and print count would both be reset.</p>
-<p>Interrupts are the better option compared to manual polling at high speeds, because with this setup, you never miss a rising and falling edge, whereas the polling intervals may not be fine enough, leading to missed edges. Furthermore, polling doesn’t guarantee we sample at a rising or falling edge, and we are relying on the fact that the two encoder sensors are 90° out of phase. With manual polling, you could sample within the high/low region of either signal incorrectly assume counterclockwise/clockwise motion. If we spin the motor at its maximum theoretical speed of 2.5rev/s, we would need a minimum polling frequency of 4080Hz to accurately capture all pulses (since A and B are 90° out of phase, there are 408 pulses per revolution, and we want 4 samples per pulse). However, the polling frequency needed to accurately measure the motor speed and direction would change as the motor speed changes, because you would be sampling at not clock edge times. Therefore, using interrupts are better.</p>
-<p>One possible tradeoff is that when you use interrupts, everything on the MCU CPU stops running, whereas with polling, nothing stops running while data is being taken. So polling can take samples continuously no matter what, whereas if the interrupt is very long, you might miss signals. However, in our case our interrupt is extremely short, so this effect is negligible.</p>
+<p>I also used a timer to print out the speed and direction at 1Hz. I configured the timer internal clock to run at 10kHz, and when the timer count reached 10000, the speed and direction would print, and then the speed count and print count would both be reset.</p>
+<p>I considered manual polling, but interrupts are the better option, especially because we are dealing with high speeds. With this setup, you never miss a rising and falling edge, whereas the polling intervals may not be fine enough, leading to missed edges. Furthermore, polling doesn’t guarantee we sample at a rising or falling edge, and we are relying on the fact that the two encoder sensors are 90° out of phase. With manual polling, you could sample within the high/low region of either signal incorrectly assume counterclockwise/clockwise motion. If we spin the motor at its maximum theoretical speed of 2.5rev/s, we would need a minimum polling frequency of 4080Hz to accurately capture all pulses (since A and B are 90° out of phase, there are 408 pulses per revolution, and we want 4 samples per pulse). However, the polling frequency needed to accurately measure the motor speed and direction would change as the motor speed changes, because you would be sampling at “not clock edge” times. Therefore, using interrupts are better.</p>
+<p>One possible tradeoff is that when you use interrupts, everything on the MCU CPU stops running, whereas with polling, nothing stops running while data is being taken. So polling can take samples continuously no matter what, whereas if the interrupt is very long, you might miss signals. However, in this implementation, the interrupt is extremely short, so this effect is negligible.</p>
 </section>
 <section id="technical-documentation" class="level1">
 <h1>Technical Documentation</h1>
@@ -397,15 +397,15 @@ ul.task-list li input[type="checkbox"] {
 <figcaption><strong>Figure 4. Schematic of all circuit components outside the PCB</strong></figcaption>
 </figure>
 </div>
-<p>The schematic in Figure 5 shows the physical circuit connections outside the PCB. The encoder sensor pins and power pins were connected to the board, while the motor power terminals were connected directly to a voltage source.</p>
+<p>The schematic in Figure 4 shows the physical circuit connections outside the PCB. The encoder sensor pins and power pins were connected to the board, while the motor power terminals were connected directly to a voltage source.</p>
 </section>
 </section>
 <section id="results-and-discussion" class="level1">
 <h1>Results and Discussion</h1>
 <p>The design met all intended design objectives.</p>
-<section id="calculations" class="level2">
-<h2 class="anchored" data-anchor-id="calculations">Calculations</h2>
-<p>The resolution of this implementation is four times the number of pulses in a second, because we each pulse has a rising and falling edge that triggers the interrupt logic, and we have two pins reading the pulses.</p>
+<section id="additional-calculations" class="level2">
+<h2 class="anchored" data-anchor-id="additional-calculations">Additional Calculations</h2>
+<p>The resolution of this implementation is four times the number of pulses in a second, because each pulse has a rising and falling edge that triggers the interrupt logic, and we have two pins reading the pulses.</p>
 <p>The update rate of collecting the motor speed and direction is also four times the number of pulses in a second. However, we only print them out every second (1Hz print clock).</p>
 </section>
 <section id="hardware-deployment" class="level2">
@@ -432,7 +432,7 @@ const PROJECTS=[
  {"featured":false,"img":"images/digitalAudio.png","slug": "digitalAudio", "t": "Using an MCU to Produce Music on a Speaker", "d": "Sept 2026 – Sept 2026", "cats": ["Embedded Systems & Firmware", "Electronics"], "b": "Programmed an MCU to write specific frequencies and durations to play music on a speaker.", "tech": ["C", "MCU (STM32)", "Circuit Design", "SEGGER Embedded Studio"]},
  {"featured":true,"img":"images/keypadScanner.jpeg","slug": "keypadScanner", "t": "FPGA-Controlled Keypad Scanner", "d": "Aug 2026 – Sep 2026", "cats": ["Embedded Systems & Firmware", "Electronics"], "b": "Programmed an FPGA to read a 4x4 matrix keypad and display the last two hexadecimal inputs on a dual seven-segment display. Accounted for key bounce, multi-press, and timing inconsistencies.", "tech": ["SystemVerilog", "FPGA (iCE40UP5K)", "Circuit Design", "Lattice Radiant", "Waveform Simulation", "Testbench"]},  
  {"featured":true,"img":"images/E80Bot.png","slug": "E80Bot", "t": "Ocean Debris-Detecting Autonomous Underwater Vehicle (AUV)", "d": "Mar 2026 – May 2026", "cats": ["Robotics & Control Systems", "Electronics", "Embedded Systems & Firmware", "Mechanical Design"], "b": "Developed and deployed an AUV to map metal debris distribution on the ocean floor and back-calculate debris drop locations.", "tech": ["P-Control", "Circuit Design", "Mechanical Design", "C++", "MATLAB", "I2C Protocol", "Data Analysis", "Troubleshooting", "Technical Documentation"]},
- {"featured":false,"img":"images/radio.jpeg","slug": "crystalRadio", "t": "Crystal Radio Experiments", "d": "Feb 2026 – Mar 2026", "cats": ["Electronics"], "b": "Analysed RLC Circuits to debug Dunwoody, Pickard, and Armstrong crystal radios. Devised an innovative antenna for optimal signal receiving.", "tech": ["Radio Frequency Engineering", "Software Defined Radio", "Circuit Analysis"]},
+ {"featured":false,"img":"images/radio.jpeg","slug": "crystalRadio", "t": "Crystal Radio Experiments", "d": "Feb 2026 – Mar 2026", "cats": ["Electronics"], "b": "Analyzed RLC Circuits to debug Dunwoody, Pickard, and Armstrong crystal radios. Devised an innovative antenna for optimal signal reception.", "tech": ["Radio Frequency Engineering", "Software Defined Radio", "Circuit Analysis"]},
 
  {"featured":false,"img":"images/eyes.jpg","slug": "animatronicEyes", "t": "Animatronic Eyes", "d": "Jul 2025 – Oct 2025", "cats": ["Embedded Systems & Firmware", "Mechanical Design"],"b": "Designed and programmed a set of animatronic eyes controlled by servo motors and joysticks through Arduino Uno.", "tech": ["SolidWorks", "Mechanical Design", "Prototyping", "C++", "Arduino", "Servo Control", "3D Printing"]},
  {"featured":true,"img":"images/abyssExplorer.jpg","slug": "abyssExplorer", "t": "Abyss Explorer", "d": "Feb 2025 – May 2025", "cats": ["Mechanical Design", "Manufacturing"], "b": "Designed and manufactured a system to raise and lower sensors through a ~600ft radioactive mine shaft (shrinking to an unknown diameter) for data collection without direct human contact.", "tech": ["SolidWorks", "Mechanical Design", "Prototyping", "Manufacturing", "Geometric Dimensioning & Tolerancing (GD&T)", "Project Management", "Technical Documentation"]},
