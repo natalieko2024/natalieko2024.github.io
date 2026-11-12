@@ -2,6 +2,7 @@
 /_site/
 /drafts/
 /docs/
+/todo/
 .DS_Store
 Thumbs.db
 **/*.quarto_ipynb
